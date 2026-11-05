@@ -162,6 +162,29 @@ def optional_llm(article, heuristic):
         return None
 
 
+def normalize_llm_changes(items):
+    """把 LLM 抽取条目规范化成与规则结果一致的字段（type/name/text/from/to）。"""
+    out = []
+    for c in items:
+        if not isinstance(c, dict):
+            continue
+        name = (c.get("name") or "").strip()
+        text = (c.get("evidence") or "").strip()
+        if not name or not text:
+            continue
+        out.append({
+            "type": c.get("type") or "mechanic",
+            "name": name,
+            "field": c.get("field"),
+            "text": text,
+            "from": c.get("from"),
+            "to": c.get("to"),
+            "direction": c.get("direction"),
+            "impact": c.get("impact"),
+        })
+    return out
+
+
 def validate(changes, hero_names, item_names, article_text):
     warnings = []
     for ch in changes:
@@ -211,6 +234,19 @@ def main():
 
     llm = None if no_llm else optional_llm(article, changes)
     warnings = validate(changes, hero_names, item_names, text)
+    heuristic_changes = changes
+    changes_source = "heuristic"
+
+    # LLM 结果优先：条数更多且证据校验通过时，采用 LLM 抽取结果
+    if llm and isinstance(llm.get("changes"), list) and len(llm["changes"]) > len(changes):
+        merged = normalize_llm_changes(llm["changes"])
+        merged_warnings = validate(merged, hero_names, item_names, text)
+        if len(merged) >= len(changes) and len(merged_warnings) <= max(2, len(merged) // 5):
+            changes = merged
+            warnings = merged_warnings
+            changes_source = "llm"
+        else:
+            print("  LLM 结果校验未通过，回退规则结果（警告 %d 条）" % len(merged_warnings))
 
     result = {
         "patchId": tid,
@@ -223,7 +259,9 @@ def main():
         "itemNames": sorted({c["name"] for c in changes if c.get("type") == "item" and c.get("name")}),
         "warnings": warnings,
         "llm": llm,
-        "heuristicChangeCount": len(changes),
+        "changesSource": changes_source,
+        "heuristicChanges": heuristic_changes,
+        "heuristicChangeCount": len(heuristic_changes),
     }
     os.makedirs(os.path.join(OUT, "extracted"), exist_ok=True)
     out_file = os.path.join(OUT, "extracted", tid + ".json")

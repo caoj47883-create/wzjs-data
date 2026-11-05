@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.11.06.1",
+  "dataVersion": "2026.11.06.2",
   "engineVersion": "1.0.0",
   "minAppVersion": "2.0.3",
-  "publishedAt": "2026-11-06T01:28:27+0800",
-  "notes": "10-29 版本更新",
+  "publishedAt": "2026-11-06T01:39:52+0800",
+  "notes": "10-29 版本更新（LLM 抽取 34 条）",
   "patch": {
     "id": "811767",
     "title": "10月29日版本更新公告",
@@ -13,14 +13,14 @@
   },
   "files": {
     "data.json": {
-      "sha256": "02a495c6bc228579d3e2f20c0789a7daf432483e173c1cac1aca539ab5699b74",
+      "sha256": "49382289aeacd89a7b2ef5775608f77ae5cb91d8584e8ce8e84e9de883368a47",
       "size": 282035,
-      "url": "releases/2026.11.06.1/data.json"
+      "url": "releases/2026.11.06.2/data.json"
     },
     "patches.json": {
-      "sha256": "0c0a3485d753e5d13b814275323739b0293bfc5907dd2b8b2b2d79038d56c148",
-      "size": 3122,
-      "url": "releases/2026.11.06.1/patches.json"
+      "sha256": "9996dc9cbb7ad9fee41c19430a5179a663c43d3a7fe2e7114b1ec63f3260265d",
+      "size": 29318,
+      "url": "releases/2026.11.06.2/patches.json"
     }
   }
 }
