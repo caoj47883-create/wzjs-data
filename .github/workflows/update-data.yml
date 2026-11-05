@@ -56,7 +56,8 @@ jobs:
         if: steps.detect.outputs.changed == 'true'
         run: |
           TID=${{ steps.detect.outputs.tid }}
-          VER="$(date -u +%Y.%m.%d).${GITHUB_RUN_NUMBER}"
+          # 序号统一加 100，保证始终大于手工发布的 N（1-99），App 按数字比较不会漏升级
+          VER="$(date -u +%Y.%m.%d).$((GITHUB_RUN_NUMBER + 100))"
           TITLE=$(python -c "import json;print(json.load(open('pipeline/out/articles/'+'$TID'+'.json'))['title'])")
           URL=$(python -c "import json;print(json.load(open('pipeline/out/articles/'+'$TID'+'.json'))['sourceUrl'])")
           DATE=$(date -u +%Y-%m-%d)
