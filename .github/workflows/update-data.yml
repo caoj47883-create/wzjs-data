@@ -34,9 +34,16 @@ jobs:
           OLD=$(python -c "import json,os;p='wzjs/v1/manifest.json';print((json.load(open(p)).get('patch') or {}).get('id','') if os.path.exists(p) else '')")
           echo "latest patch: $LATEST / published: $OLD"
           echo "tid=$LATEST" >> "$GITHUB_OUTPUT"
-          if [ -n "$LATEST" ] && [ "$LATEST" != "$OLD" ]; then
+          # 守卫：tid 随公告递增，仅当最新 tid 大于已发布 tid 才发布。
+          # 海外 runner 有时会拿到旧列表，若无此守卫会发布"降级包"覆盖线上数据。
+          if [ -z "$LATEST" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          elif [ -z "$OLD" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          elif [ "$LATEST" -gt "$OLD" ] 2>/dev/null; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
+            echo "WARN: latest tid $LATEST <= published $OLD, skip publishing"
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -56,8 +63,12 @@ jobs:
         if: steps.detect.outputs.changed == 'true'
         run: |
           TID=${{ steps.detect.outputs.tid }}
-          # 序号统一加 100，保证始终大于手工发布的 N（1-99），App 按数字比较不会漏升级
-          VER="$(date -u +%Y.%m.%d).$((GITHUB_RUN_NUMBER + 100))"
+          # 版本号：日期取 max(北京时间今天, 已发布日期)，序号加 100 保证大于手工 N（1-99）
+          TODAY=$(TZ=Asia/Shanghai date +%Y.%m.%d)
+          PREV_DATE=$(python -c "import json,os;p='wzjs/v1/manifest.json';print((json.load(open(p)).get('dataVersion','0').rsplit('.',1)[0]) if os.path.exists(p) else '0')")
+          BASEDATE="$TODAY"
+          if [[ "$PREV_DATE" > "$TODAY" ]]; then BASEDATE="$PREV_DATE"; fi
+          VER="${BASEDATE}.$((GITHUB_RUN_NUMBER + 100))"
           TITLE=$(python -c "import json;print(json.load(open('pipeline/out/articles/'+'$TID'+'.json'))['title'])")
           URL=$(python -c "import json;print(json.load(open('pipeline/out/articles/'+'$TID'+'.json'))['sourceUrl'])")
           DATE=$(date -u +%Y-%m-%d)
@@ -70,9 +81,8 @@ jobs:
             --patch-date "$DATE" \
             --source-url "$URL" \
             --notes "自动更新：$TITLE"
-          rm -rf wzjs/v1
           mkdir -p wzjs/v1
-          cp -r pipeline/out/publish/* wzjs/v1/
+          cp -rf pipeline/out/publish/* wzjs/v1/
 
       - name: Commit & push (Pages auto-deploy)
         if: steps.detect.outputs.changed == 'true'
