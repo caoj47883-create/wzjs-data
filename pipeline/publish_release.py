@@ -108,7 +108,7 @@ def main():
     data["version"] = ver
     if args.patch_date:
         data["snapshot"] = args.patch_date
-    with open(data_dst, "w", encoding="utf-8") as f:
+    with open(data_dst, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
 
     files = {
@@ -122,14 +122,17 @@ def main():
     patches_info = None
     if args.patches and os.path.exists(args.patches):
         patches_dst = os.path.join(version_dir, "patches.json")
-        shutil.copyfile(args.patches, patches_dst)
+        with open(args.patches, encoding="utf-8") as f:
+            patch_obj = json.load(f)
+        # 统一写成 LF：避免 Windows CRLF 被 git 转换后线上字节与 sha256 不一致
+        with open(patches_dst, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(patch_obj, f, ensure_ascii=False, indent=2)
         files["patches.json"] = {
             "sha256": sha256_file(patches_dst),
             "size": os.path.getsize(patches_dst),
             "url": "releases/%s/patches.json" % ver,
         }
-        with open(patches_dst, encoding="utf-8") as f:
-            patches_info = json.load(f).get("changes", [])
+        patches_info = patch_obj.get("changes", [])
 
     # 2. 发布说明
     release = {
@@ -141,7 +144,7 @@ def main():
         "items": len(data.get("items", [])),
         "comps": len(data.get("comps", [])),
     }
-    with open(os.path.join(version_dir, "release.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(version_dir, "release.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(release, f, ensure_ascii=False, indent=2)
 
     # 3. manifest
@@ -168,7 +171,7 @@ def main():
         }
 
     manifest_path = os.path.join(out_root, "manifest.json")
-    with open(manifest_path, "w", encoding="utf-8") as f:
+    with open(manifest_path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2)
     # 方便 CDN/静态托管：latest.json 同内容
     shutil.copyfile(manifest_path, os.path.join(out_root, "latest.json"))
