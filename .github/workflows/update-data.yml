@@ -1,0 +1,87 @@
+# 复制到「数据仓库」的 .github/workflows/update-data.yml
+# 作用：每 6 小时检查官方公告；只有出现新版本公告时才抓正文、抽取、发布，避免无意义提交。
+name: wzjs-data-update
+
+on:
+  schedule:
+    - cron: "15 */6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Playwright (headless chromium)
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Fetch official sources & detect new patch
+        id: detect
+        run: |
+          python pipeline/fetch_sources.py
+          LATEST=$(python -c "import json;d=json.load(open('pipeline/out/source_report.json'));print((d.get('patches') or [{}])[0].get('tid',''))")
+          OLD=$(python -c "import json,os;p='wzjs/v1/manifest.json';print((json.load(open(p)).get('patch') or {}).get('id','') if os.path.exists(p) else '')")
+          echo "latest patch: $LATEST / published: $OLD"
+          echo "tid=$LATEST" >> "$GITHUB_OUTPUT"
+          if [ -n "$LATEST" ] && [ "$LATEST" != "$OLD" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Render announcement content
+        if: steps.detect.outputs.changed == 'true'
+        run: python pipeline/fetch_article_playwright.py ${{ steps.detect.outputs.tid }}
+
+      - name: Extract structured changes (optional LLM)
+        if: steps.detect.outputs.changed == 'true'
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL }}
+        run: python pipeline/extract_patch.py ${{ steps.detect.outputs.tid }}
+
+      - name: Build release package
+        if: steps.detect.outputs.changed == 'true'
+        run: |
+          TID=${{ steps.detect.outputs.tid }}
+          VER="$(date -u +%Y.%m.%d).${GITHUB_RUN_NUMBER}"
+          TITLE=$(python -c "import json;print(json.load(open('pipeline/out/articles/'+'$TID'+'.json'))['title'])")
+          URL=$(python -c "import json;print(json.load(open('pipeline/out/articles/'+'$TID'+'.json'))['sourceUrl'])")
+          DATE=$(date -u +%Y-%m-%d)
+          python pipeline/publish_release.py \
+            --version "$VER" \
+            --data next/src/data/data.json \
+            --patches "pipeline/out/extracted/$TID.json" \
+            --patch-id "$TID" \
+            --patch-title "$TITLE" \
+            --patch-date "$DATE" \
+            --source-url "$URL" \
+            --notes "自动更新：$TITLE"
+          rm -rf wzjs/v1
+          mkdir -p wzjs/v1
+          cp -r pipeline/out/publish/* wzjs/v1/
+
+      - name: Commit & push (Pages auto-deploy)
+        if: steps.detect.outputs.changed == 'true'
+        run: |
+          git config user.name "wzjs-data-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "data: $(date -u +%Y-%m-%d) patch ${{ steps.detect.outputs.tid }}"
+            git push
+          fi

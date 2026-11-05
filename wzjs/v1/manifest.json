@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "dataVersion": "2026.11.06.1",
+  "engineVersion": "1.0.0",
+  "minAppVersion": "2.0.3",
+  "publishedAt": "2026-11-06T01:28:27+0800",
+  "notes": "10-29 版本更新",
+  "patch": {
+    "id": "811767",
+    "title": "10月29日版本更新公告",
+    "date": "2026-10-29",
+    "sourceUrl": "https://pvp.qq.com/web201706/newsdetail.shtml?G_Biz=18&tid=811767"
+  },
+  "files": {
+    "data.json": {
+      "sha256": "02a495c6bc228579d3e2f20c0789a7daf432483e173c1cac1aca539ab5699b74",
+      "size": 282035,
+      "url": "releases/2026.11.06.1/data.json"
+    },
+    "patches.json": {
+      "sha256": "0c0a3485d753e5d13b814275323739b0293bfc5907dd2b8b2b2d79038d56c148",
+      "size": 3122,
+      "url": "releases/2026.11.06.1/patches.json"
+    }
+  }
+}
