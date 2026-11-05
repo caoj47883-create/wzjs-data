@@ -124,11 +124,11 @@ def extract_simple_changes(section_lines, kind, whitelist):
 
 
 def optional_llm(article, heuristic):
-    key = os.environ.get("LLM_API_KEY")
+    key = (os.environ.get("LLM_API_KEY") or "").strip()
     if not key:
         return None
-    base = os.environ.get("LLM_BASE_URL", "https://api.deepseek.com/v1").rstrip("/")
-    model = os.environ.get("LLM_MODEL", "deepseek-chat")
+    base = (os.environ.get("LLM_BASE_URL") or "https://api.deepseek.com/v1").rstrip("/")
+    model = (os.environ.get("LLM_MODEL") or "deepseek-chat").strip()
     prompt = (
         "你是王者荣耀数据整理助手。下面是官方版本更新公告全文。"
         "只提取公告里明确写出的改动（英雄/装备/机制），不要推测；"
