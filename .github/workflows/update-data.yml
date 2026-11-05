@@ -1,11 +1,24 @@
 # 复制到「数据仓库」的 .github/workflows/update-data.yml
-# 作用：每 6 小时检查官方公告；只有出现新版本公告时才抓正文、抽取、发布，避免无意义提交。
+# 每 6 小时检查官方公告；只有出现新版本公告时才抓正文、抽取、发布，避免无意义提交。
+# 也可以手动触发指定公告（修正数据/补发）：
+#   gh workflow run update-data.yml -f tid=812092 -f force=true
+#   或在 GitHub 网页 Actions → wzjs-data-update → Run workflow 里填 tid + force。
 name: wzjs-data-update
 
 on:
   schedule:
     - cron: "15 */6 * * *"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      tid:
+        description: "指定公告 tid（留空 = 自动检测最新版本更新公告）"
+        required: false
+        default: ""
+      force:
+        description: "强制发布（允许 tid <= 已发布版本，用于修正错误数据）"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -28,22 +41,24 @@ jobs:
 
       - name: Fetch official sources & detect new patch
         id: detect
+        env:
+          INPUT_TID: ${{ github.event.inputs.tid }}
+          INPUT_FORCE: ${{ github.event.inputs.force }}
         run: |
           python pipeline/fetch_sources.py
-          LATEST=$(python -c "import json;d=json.load(open('pipeline/out/source_report.json'));print((d.get('patches') or [{}])[0].get('tid',''))")
+          AUTO=$(python -c "import json;d=json.load(open('pipeline/out/source_report.json'));print((d.get('patches') or [{}])[0].get('tid',''))")
+          if [ -n "$INPUT_TID" ]; then LATEST="$INPUT_TID"; else LATEST="$AUTO"; fi
           OLD=$(python -c "import json,os;p='wzjs/v1/manifest.json';print((json.load(open(p)).get('patch') or {}).get('id','') if os.path.exists(p) else '')")
-          echo "latest patch: $LATEST / published: $OLD"
+          P_DATE=$(python -c "import json;d=json.load(open('pipeline/out/source_report.json'));ps=d.get('patches') or [];print(next((str(p.get('publishedAt','') or '')[:10] for p in ps if str(p.get('tid'))=='$LATEST'), ''))")
+          echo "latest=$LATEST old=$OLD patchDate=$P_DATE force=$INPUT_FORCE"
           echo "tid=$LATEST" >> "$GITHUB_OUTPUT"
-          # 守卫：tid 随公告递增，仅当最新 tid 大于已发布 tid 才发布。
-          # 海外 runner 有时会拿到旧列表，若无此守卫会发布"降级包"覆盖线上数据。
+          echo "patch_date=$P_DATE" >> "$GITHUB_OUTPUT"
           if [ -z "$LATEST" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-          elif [ -z "$OLD" ]; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          elif [ "$LATEST" -gt "$OLD" ] 2>/dev/null; then
+          elif [ -z "$OLD" ] || [ "$INPUT_FORCE" = "true" ] || { [ "$LATEST" -gt "$OLD" ] 2>/dev/null; }; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
-            echo "WARN: latest tid $LATEST <= published $OLD, skip publishing"
+            echo "WARN: latest tid $LATEST <= published $OLD, skip (force: -f tid=... -f force=true)"
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -63,7 +78,7 @@ jobs:
         if: steps.detect.outputs.changed == 'true'
         run: |
           TID=${{ steps.detect.outputs.tid }}
-          # 版本号：日期取 max(北京时间今天, 已发布日期)，序号加 100 保证大于手工 N（1-99）
+          # 版本号：日期取 max(北京时间今天, 已发布日期)，序号加 100 避免与手工发布冲突
           TODAY=$(TZ=Asia/Shanghai date +%Y.%m.%d)
           PREV_DATE=$(python -c "import json,os;p='wzjs/v1/manifest.json';print((json.load(open(p)).get('dataVersion','0').rsplit('.',1)[0]) if os.path.exists(p) else '0')")
           BASEDATE="$TODAY"
@@ -71,15 +86,17 @@ jobs:
           VER="${BASEDATE}.$((GITHUB_RUN_NUMBER + 100))"
           TITLE=$(python -c "import json;print(json.load(open('pipeline/out/articles/'+'$TID'+'.json'))['title'])")
           URL=$(python -c "import json;print(json.load(open('pipeline/out/articles/'+'$TID'+'.json'))['sourceUrl'])")
-          DATE=$(date -u +%Y-%m-%d)
+          PDATE="${{ steps.detect.outputs.patch_date }}"
+          if [ -z "$PDATE" ]; then PDATE=$(TZ=Asia/Shanghai date +%Y-%m-%d); fi
           python pipeline/publish_release.py \
             --version "$VER" \
             --data next/src/data/data.json \
             --patches "pipeline/out/extracted/$TID.json" \
             --patch-id "$TID" \
             --patch-title "$TITLE" \
-            --patch-date "$DATE" \
+            --patch-date "$PDATE" \
             --source-url "$URL" \
+            --min-app-version 2.1.0 \
             --notes "自动更新：$TITLE"
           mkdir -p wzjs/v1
           cp -rf pipeline/out/publish/* wzjs/v1/
@@ -93,6 +110,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "no changes"
           else
-            git commit -m "data: $(date -u +%Y-%m-%d) patch ${{ steps.detect.outputs.tid }}"
+            git commit -m "data: $(TZ=Asia/Shanghai date +%Y-%m-%d) patch ${{ steps.detect.outputs.tid }}"
             git push
           fi

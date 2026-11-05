@@ -1,0 +1,9 @@
+{
+  "dataVersion": "2026.11.06.4",
+  "publishedAt": "2026-11-06T01:57:39+0800",
+  "notes": "修正：补发 11月5日版本更新（此前数据停在 10-29）",
+  "changeCount": 10,
+  "heroes": 133,
+  "items": 42,
+  "comps": 30
+}

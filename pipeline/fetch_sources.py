@@ -66,8 +66,12 @@ def fetch_text(url):
     return raw.decode("utf-8", "replace")
 
 
-def fetch_announcements_via_cmc(chanid=1770, limit=30):
-    """官方公告列表接口（签名规则见官网 newsindex.js）。"""
+def fetch_announcements_via_cmc(chanid=1762, limit=30):
+    """官方公告列表接口（签名规则见官网 newsindex.js）。
+
+    chanid=1762 是官网「公告」频道（页面 data-channelid=1762），
+    比静态 page HTML 新（page 可能被 CDN 缓存到旧版本，导致漏掉新公告）。
+    """
     ts = int(time.time())
     sign = __import__("hashlib").md5(
         (CMC_TOKEN + "web_pc" + "18" + str(ts)).encode("utf-8")
@@ -87,7 +91,7 @@ def fetch_announcements_via_cmc(chanid=1770, limit=30):
         result.append({
             "tid": it.get("iId"),
             "title": it.get("sTitle"),
-            "publishedAt": it.get("sIdxTime") or it.get("sCreated"),
+            "publishedAt": it.get("sIdxTime") or it.get("sCreated") or it.get("iTime"),
             "url": "https://pvp.qq.com/web201706/newsdetail.shtml?G_Biz=18&tid=%s" % it.get("iId"),
         })
     return result
@@ -176,31 +180,36 @@ def main():
 
     print("== 3/4 拉取官方公告列表 ==")
     announcements = []
+    source = ""
+    # 优先用官方 CMC 接口（实时），静态页面作为兜底（CDN 可能缓存到旧版本）
     try:
-        announcements = fetch_announcements_via_page()
-        print("   via page parse:", len(announcements))
+        announcements = fetch_announcements_via_cmc(1762, 30)
+        source = "CMC api / chanid=1762（公告）"
+        print("   via CMC api:", len(announcements))
     except Exception as exc:  # noqa: BLE001
-        print("   page parse failed:", exc)
+        print("   CMC api failed:", exc)
     if not announcements:
         try:
-            announcements = fetch_announcements_via_cmc()
-            print("   via CMC api:", len(announcements))
+            announcements = fetch_announcements_via_page()
+            source = "page parse（兜底，可能滞后）"
+            print("   via page parse:", len(announcements))
         except Exception as exc:  # noqa: BLE001
-            print("   CMC api failed:", exc)
+            print("   page parse failed:", exc)
     with open(os.path.join(snapdir, "announcements.json"), "w", encoding="utf-8") as f:
         json.dump(announcements, f, ensure_ascii=False, indent=1)
     patches = [a for a in announcements if is_patch_announcement(a["title"])]
-    # 优先正式服版本更新公告；同类型按 tid 倒序（越大越新）
+    # 优先正式服版本更新公告；同类型按 tid 倒序（tid 随公告时间递增）
     patches.sort(key=lambda x: (0 if ("体验服" not in x["title"]) else 1, -int(x["tid"] or 0)))
-    print("   patch announcements:", len(patches))
+    print("   patch announcements:", len(patches), "| source:", source)
     for p in patches[:5]:
-        print("     -", p["title"], "| tid=", p["tid"])
+        print("     -", p["title"], "| tid=", p["tid"], "|", p.get("publishedAt") or "")
 
     print("== 4/4 与 App 数据快照对比 ==")
     local = load_local_data()
     report = {
         "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "snapshotDir": snapdir,
+        "announcementSource": source,
         "heroes": summarize_hero_diff(heroes, local),
         "items": summarize_item_diff(items, local),
         "patches": patches[:5],
