@@ -1,0 +1,125 @@
+{
+  "patchId": "810034",
+  "title": "10月8日版本更新公告",
+  "sourceUrl": "https://pvp.qq.com/web201706/newsdetail.shtml?G_Biz=18&tid=810034",
+  "fetchedAt": "2026-11-05T17:47:34+00:00",
+  "sections": {
+    "夺宝更新": 16
+  },
+  "changes": [
+    {
+      "type": "mechanic",
+      "name": "雾行千山",
+      "field": "雾气区域内英雄减速效果",
+      "text": "修复了雾行千山雾气区域内英雄减速效果异常的问题",
+      "from": "异常",
+      "to": "修复",
+      "direction": "adjust",
+      "impact": "修复雾气区域内英雄减速效果异常的问题，使减速效果符合预期"
+    },
+    {
+      "type": "mechanic",
+      "name": "雾行千山",
+      "field": "英雄训练场释放时移动距离",
+      "text": "修复了英雄训练场释放雾行千山无法移动距离的问题",
+      "from": "无法移动距离",
+      "to": "修复",
+      "direction": "adjust",
+      "impact": "修复英雄训练场释放雾行千山无法移动距离的问题"
+    },
+    {
+      "type": "hero",
+      "name": "蒙犽",
+      "field": "一技能计时条背景表现",
+      "text": "修复了蒙犽死亡后一技能计时条背景表现异常的问题",
+      "from": "死亡后表现异常",
+      "to": "修复",
+      "direction": "adjust",
+      "impact": "修复蒙犽死亡后一技能计时条背景表现异常的问题，仅涉及表现"
+    },
+    {
+      "type": "hero",
+      "name": "蒙犽",
+      "field": "消耗炽怒时状态图标描述",
+      "text": "修复了蒙犽消耗炽怒时状态图标的描述异常的问题",
+      "from": "描述异常",
+      "to": "修复",
+      "direction": "adjust",
+      "impact": "修复蒙犽消耗炽怒时状态图标的描述异常问题，仅涉及描述"
+    },
+    {
+      "type": "hero",
+      "name": "明世隐",
+      "field": "一技能",
+      "text": "修复了明世隐一技能偶现卡顿的问题",
+      "from": "偶现卡顿",
+      "to": "修复",
+      "direction": "adjust",
+      "impact": "修复明世隐一技能偶现卡顿的问题，提升技能释放稳定性"
+    }
+  ],
+  "heroNames": [
+    "明世隐",
+    "蒙犽"
+  ],
+  "itemNames": [],
+  "warnings": [],
+  "llm": {
+    "changes": [
+      {
+        "type": "mechanic",
+        "name": "雾行千山",
+        "field": "雾气区域内英雄减速效果",
+        "from": "异常",
+        "to": "修复",
+        "direction": "adjust",
+        "impact": "修复雾气区域内英雄减速效果异常的问题，使减速效果符合预期",
+        "evidence": "修复了雾行千山雾气区域内英雄减速效果异常的问题"
+      },
+      {
+        "type": "mechanic",
+        "name": "雾行千山",
+        "field": "英雄训练场释放时移动距离",
+        "from": "无法移动距离",
+        "to": "修复",
+        "direction": "adjust",
+        "impact": "修复英雄训练场释放雾行千山无法移动距离的问题",
+        "evidence": "修复了英雄训练场释放雾行千山无法移动距离的问题"
+      },
+      {
+        "type": "hero",
+        "name": "蒙犽",
+        "field": "一技能计时条背景表现",
+        "from": "死亡后表现异常",
+        "to": "修复",
+        "direction": "adjust",
+        "impact": "修复蒙犽死亡后一技能计时条背景表现异常的问题，仅涉及表现",
+        "evidence": "修复了蒙犽死亡后一技能计时条背景表现异常的问题"
+      },
+      {
+        "type": "hero",
+        "name": "蒙犽",
+        "field": "消耗炽怒时状态图标描述",
+        "from": "描述异常",
+        "to": "修复",
+        "direction": "adjust",
+        "impact": "修复蒙犽消耗炽怒时状态图标的描述异常问题，仅涉及描述",
+        "evidence": "修复了蒙犽消耗炽怒时状态图标的描述异常的问题"
+      },
+      {
+        "type": "hero",
+        "name": "明世隐",
+        "field": "一技能",
+        "from": "偶现卡顿",
+        "to": "修复",
+        "direction": "adjust",
+        "impact": "修复明世隐一技能偶现卡顿的问题，提升技能释放稳定性",
+        "evidence": "修复了明世隐一技能偶现卡顿的问题"
+      }
+    ],
+    "_model": "deepseek-chat"
+  },
+  "changesSource": "llm",
+  "heuristicChanges": [],
+  "heuristicChangeCount": 0
+}
