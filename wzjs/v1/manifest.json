@@ -1,26 +1,26 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.11.06.103",
+  "dataVersion": "2026.11.10.114",
   "engineVersion": "1.0.0",
   "minAppVersion": "2.1.0",
-  "publishedAt": "2026-11-05T18:15:36+0000",
-  "notes": "自动更新：11月5日版本更新公告",
+  "publishedAt": "2026-11-09T22:25:54+0000",
+  "notes": "自动更新：11月10日版本更新公告",
   "patch": {
-    "id": "812092",
-    "title": "11月5日版本更新公告",
-    "date": "2026-11-04",
-    "sourceUrl": "https://pvp.qq.com/web201706/newsdetail.shtml?G_Biz=18&tid=812092"
+    "id": "812311",
+    "title": "11月10日版本更新公告",
+    "date": "2026-11-09",
+    "sourceUrl": "https://pvp.qq.com/web201706/newsdetail.shtml?G_Biz=18&tid=812311"
   },
   "files": {
     "data.json": {
-      "sha256": "7d32fa820276d47a96da1fa285cd79de0acec1a0f91db8bd02d61b8be7030fd0",
+      "sha256": "cbc26be4a4a69a9e25d66c154be3aef6e35f3ba9fb4c508b9373970f040da872",
       "size": 282037,
-      "url": "releases/2026.11.06.103/data.json"
+      "url": "releases/2026.11.10.114/data.json"
     },
     "patches.json": {
-      "sha256": "8ec01cc0c201002b834388fd3983a5b6d2ed634a6408649bf537be087481ecd5",
-      "size": 21721,
-      "url": "releases/2026.11.06.103/patches.json"
+      "sha256": "7895eabd196a7487dbbc48e47fdba8d6be950b53c91c789f25d269dba9f32d11",
+      "size": 10607,
+      "url": "releases/2026.11.10.114/patches.json"
     }
   }
 }
