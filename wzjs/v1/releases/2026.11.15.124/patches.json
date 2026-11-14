@@ -1,0 +1,18 @@
+{
+  "patchId": "812588",
+  "title": "11月15日版本更新公告",
+  "sourceUrl": "https://pvp.qq.com/web201706/newsdetail.shtml?G_Biz=18&tid=812588",
+  "fetchedAt": "2026-11-14T18:08:57+00:00",
+  "sections": {},
+  "changes": [],
+  "heroNames": [],
+  "itemNames": [],
+  "warnings": [],
+  "llm": {
+    "changes": [],
+    "_model": "deepseek-chat"
+  },
+  "changesSource": "heuristic",
+  "heuristicChanges": [],
+  "heuristicChangeCount": 0
+}
