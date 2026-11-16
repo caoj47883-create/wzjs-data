@@ -19,6 +19,10 @@ on:
         required: false
         default: false
         type: boolean
+      version:
+        description: "可选：强制 dataVersion（如 2026.11.16.200）"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -78,12 +82,17 @@ jobs:
         if: steps.detect.outputs.changed == 'true'
         run: |
           TID=${{ steps.detect.outputs.tid }}
-          # 版本号：日期取 max(北京时间今天, 已发布日期)，序号加 100 避免与手工发布冲突
-          TODAY=$(TZ=Asia/Shanghai date +%Y.%m.%d)
-          PREV_DATE=$(python -c "import json,os;p='wzjs/v1/manifest.json';print((json.load(open(p)).get('dataVersion','0').rsplit('.',1)[0]) if os.path.exists(p) else '0')")
-          BASEDATE="$TODAY"
-          if [[ "$PREV_DATE" > "$TODAY" ]]; then BASEDATE="$PREV_DATE"; fi
-          VER="${BASEDATE}.$((GITHUB_RUN_NUMBER + 100))"
+          # 版本号：默认日期取 max(北京时间今天, 已发布日期)，序号加 100；手动可强制指定
+          INPUT_VERSION="${{ github.event.inputs.version }}"
+          if [ -n "$INPUT_VERSION" ]; then
+            VER="$INPUT_VERSION"
+          else
+            TODAY=$(TZ=Asia/Shanghai date +%Y.%m.%d)
+            PREV_DATE=$(python -c "import json,os;p='wzjs/v1/manifest.json';print((json.load(open(p)).get('dataVersion','0').rsplit('.',1)[0]) if os.path.exists(p) else '0')")
+            BASEDATE="$TODAY"
+            if [[ "$PREV_DATE" > "$TODAY" ]]; then BASEDATE="$PREV_DATE"; fi
+            VER="${BASEDATE}.$((GITHUB_RUN_NUMBER + 100))"
+          fi
           TITLE=$(python -c "import json;print(json.load(open('pipeline/out/articles/'+'$TID'+'.json'))['title'])")
           URL=$(python -c "import json;print(json.load(open('pipeline/out/articles/'+'$TID'+'.json'))['sourceUrl'])")
           PDATE="${{ steps.detect.outputs.patch_date }}"
