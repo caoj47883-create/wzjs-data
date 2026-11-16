@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.11.16.128",
+  "dataVersion": "2026.11.16.200",
   "engineVersion": "1.0.0",
   "minAppVersion": "2.1.0",
-  "publishedAt": "2026-11-16T01:32:31+0000",
+  "publishedAt": "2026-11-16T01:37:11+0000",
   "notes": "自动更新：11月15日版本更新公告",
   "patch": {
     "id": "812588",
@@ -13,14 +13,14 @@
   },
   "files": {
     "data.json": {
-      "sha256": "620bf4e857d71245841a29f2ea9ee72261912f2009a084dfb22f09a6df74de59",
-      "size": 282037,
-      "url": "releases/2026.11.16.128/data.json"
+      "sha256": "ad1e01476a7134603b4e28d27c52b6e38b2c9107923cf35253ef9ece99680ce1",
+      "size": 282325,
+      "url": "releases/2026.11.16.200/data.json"
     },
     "patches.json": {
-      "sha256": "85b1b5e8f028eed2dd25401a89f24915db131ff38c463a2191976dbc43be79d1",
+      "sha256": "a36e9051cb9ed0a6b85f2ab33d49c82d73136ae7d03e862faefed28f0b5ff0f1",
       "size": 439,
-      "url": "releases/2026.11.16.128/patches.json"
+      "url": "releases/2026.11.16.200/patches.json"
     }
   }
 }
