@@ -1,0 +1,49 @@
+{
+  "patchId": "812768",
+  "title": "11月19日版本更新公告",
+  "sourceUrl": "https://pvp.qq.com/web201706/newsdetail.shtml?G_Biz=18&tid=812768",
+  "fetchedAt": "2026-11-18T20:36:36+00:00",
+  "sections": {
+    "英雄调整": 8
+  },
+  "changes": [
+    {
+      "type": "hero",
+      "name": "刀锋宝贝",
+      "text": "一技能：护盾和加速时长：2秒→2.5秒",
+      "from": "一技能：护盾和加速时长：2秒",
+      "to": "2.5秒"
+    }
+  ],
+  "heroNames": [
+    "刀锋宝贝"
+  ],
+  "itemNames": [],
+  "warnings": [],
+  "llm": {
+    "changes": [
+      {
+        "type": "hero",
+        "name": "刀锋宝贝",
+        "field": "一技能护盾和加速时长",
+        "from": "2秒",
+        "to": "2.5秒",
+        "direction": "buff",
+        "impact": "护盾和加速持续时间延长，生存与机动性小幅提升",
+        "evidence": "一技能：护盾和加速时长：2秒→2.5秒"
+      }
+    ],
+    "_model": "deepseek-chat"
+  },
+  "changesSource": "heuristic",
+  "heuristicChanges": [
+    {
+      "type": "hero",
+      "name": "刀锋宝贝",
+      "text": "一技能：护盾和加速时长：2秒→2.5秒",
+      "from": "一技能：护盾和加速时长：2秒",
+      "to": "2.5秒"
+    }
+  ],
+  "heuristicChangeCount": 1
+}
