@@ -1,0 +1,42 @@
+{
+  "patchId": "813097",
+  "title": "11月27日问题修复版本更新公告",
+  "sourceUrl": "https://pvp.qq.com/web201706/newsdetail.shtml?G_Biz=18&tid=813097",
+  "fetchedAt": "2026-11-26T21:38:16+00:00",
+  "sections": {},
+  "changes": [
+    {
+      "type": "hero",
+      "name": "西施",
+      "field": "一技能",
+      "text": "修复西施一技能偶现无法释放的问题",
+      "from": "偶现无法释放",
+      "to": "修复后可正常释放",
+      "direction": "buff",
+      "impact": "修复西施一技能偶现无法释放的问题，提升技能释放稳定性"
+    }
+  ],
+  "heroNames": [
+    "西施"
+  ],
+  "itemNames": [],
+  "warnings": [],
+  "llm": {
+    "changes": [
+      {
+        "type": "hero",
+        "name": "西施",
+        "field": "一技能",
+        "from": "偶现无法释放",
+        "to": "修复后可正常释放",
+        "direction": "buff",
+        "impact": "修复西施一技能偶现无法释放的问题，提升技能释放稳定性",
+        "evidence": "修复西施一技能偶现无法释放的问题"
+      }
+    ],
+    "_model": "deepseek-chat"
+  },
+  "changesSource": "llm",
+  "heuristicChanges": [],
+  "heuristicChangeCount": 0
+}
